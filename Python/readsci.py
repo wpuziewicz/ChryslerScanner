@@ -3,6 +3,7 @@ import serial
 import time
 import argparse
 import serial.tools.list_ports
+import packet
 
 scannerId='10C4:EA60'
 comPort=''
@@ -36,23 +37,25 @@ def send_requests():
     with open('autocross.txt', "r") as f:
         for line in f:
             request = bytes.fromhex(line.replace('\n', ''))
-            packet_length = len(request)
-            packet_length_hb = (packet_length >> 8) & 0xFF
-            packet_length_lb = packet_length & 0xFF
-            packet = bytearray([0x3D, packet_length_hb, packet_length_lb ])
-            packet.extend(request)
-
-            # Checksum is a simple byte-adder discarding overflow
-            checksum = 0
-            i = 0
-            while i < len(packet):
-                checksum += packet[i]
-                i += 1
-
-            checksum = (checksum & 0xFF).to_bytes(1, 'little')
-            packet.extend(checksum)
-            com.write(packet)
-            print("Sent " + " ".join(["{:02x}".format(x) for x in packet]).upper())
+#            packet_length = len(request)
+#            packet_length_hb = (packet_length >> 8) & 0xFF
+#            packet_length_lb = packet_length & 0xFF
+#            packet = bytearray([0x3D, packet_length_hb, packet_length_lb ])
+#            packet.extend(request)
+#
+#            # Checksum is a simple byte-adder discarding overflow
+#            checksum = 0
+#            i = 0
+#            while i < len(packet):
+#                checksum += packet[i]
+#                i += 1
+#
+#            checksum = (checksum & 0xFF).to_bytes(1, 'little')
+#            packet.extend(checksum)
+            myPacket = packet.PacketTx()
+            com.write(myPacket.buildPacket(request))
+#            com.write(myPacket)
+#            print("Sent " + " ".join(["{:02x}".format(x) for x in myPacket]).upper())
 
             echo = False
             timeout = time.time() + 4
@@ -72,7 +75,7 @@ def send_requests():
                     print("Return: " + data.hex())
             if not echo:
                 print(" ".join(["{:02x}".format(x) for x in request]).upper() + ": request timeout")
-                print(" ".join(["{:02x}".format(x) for x in packet]).upper() + ": packet timeout")
+#                print(" ".join(["{:02x}".format(x) for x in packet]).upper() + ": packet timeout")
     com.close()
 
 
