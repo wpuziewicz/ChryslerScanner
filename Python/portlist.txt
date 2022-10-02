@@ -1,0 +1,9 @@
+# Scanner
+/dev/ttyUSB0        
+    desc: CP2102 USB to UART Bridge Controller
+    hwid: USB VID:PID=10C4:EA60 SER=0001 LOCATION=1-1.4
+
+# Serial
+/dev/ttyUSB1        
+    desc: USB-Serial Controller D
+    hwid: USB VID:PID=067B:2303 LOCATION=1-1.3

@@ -31,7 +31,10 @@ def send_requests():
         except TypeError:
             print("Error")
             pass
+        print(type(data))
         print(data.hex())
+        rdPacket = packet.PacketRx()
+        rdPacket.decode(data) 
 
     # Open the request file and feed it one line at a time
     with open('autocross.txt', "r") as f:

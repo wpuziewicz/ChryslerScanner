@@ -1,0 +1,37 @@
+
+02 00 -- Status reuqest
+
+03 03 91  -- Set SCI low speed
+
+26 02 12  -- Set high speed (12 from low speed) 
+
+03 03 B2  -- Set SCI high speed
+|  |  |
+|  |  |
+|  |  B2 = set 62500 baud rate
+|  |
+|  Sub code 3 = set sci bus mode
+Data code 3 = settings
+
+03 04 02 00 32 00 00  -- set repeat mode, 20ms interval, no increment
+|  |  |  |  |  |  
+|  |  |  |  |  00 00 = No increment   --  Optional
+|  |  |  |  
+|  |  |  00 32 = 50 ms repeat
+|  |  |  
+|  |  02 = sci bus 
+|  |  
+|  04 = set repeat behavior
+|  
+03 = settings
+
+            2 bytes   3 bytes     2 bytes 2 ytes
+26 05 00 05 02 F3 D2 03 F3 37 38 02 F3 27 02 F3 2C 02 F4 0E
+|  |  |  |     ^^^^^    ^^^^^^^^    ^^^^^    ^^^^^    ^^^^^
+|  |  |  |     BRAKE    RPM         MAP      TPS      SPEED
+|  |  |  |     SWITCH               VOLTS    Volts
+|  |  |  |
+|  |  |  5 messages
+|  |  0 - no iteration
+|  5 = sub-data code 5 = send a list of messages repeatedly
+2 = SCI bus, 6 = transmit

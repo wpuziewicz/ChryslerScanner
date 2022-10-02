@@ -133,15 +133,62 @@ class SCISpeedMode(Enum):
     lowSpeed = 0x01
     highSpeed = 0x02
 
+class HwInfo:
+    hardwareVer = 0.0
+    hardwareDate = bytearray([])
+    assemblyDate = bytearray([])  
+    firmwareDate = bytearray([])
 
-#class PacketRx:
-#    byte[] buffer
-#    int length
-#    byte bus
-#    byte command
-#    byte mode
-#    byte[] payload
-#    byte checksum
+    def decode(self, payload):
+      hardwareVer = (payload[0:1]) / 10
+      hardwareDate = payload[2:9] 
+      assemblyDate = payload[10:17]
+      firmwareDate = payload[18:25]
+      print("Hardware Ver = ")
+      print(hardwareVer)
+      
+
+class PacketRx:
+    buffer = bytearray([])
+    length = 0
+    command = 0x00
+    commandEnum = Command(0x00)
+    mode = 0x00
+    payload = bytearray([])
+    checksum = 0x00
+
+      
+    def decode(self, data):
+      datalen = len(data)
+      if data[0] == 0x3d:
+        length   = (data[1] << 8) | data[2]
+        command  = data[3]
+        mode     = data[4]
+        payload  = data[5:5+(length - 2)]
+        checksum = data[5+(length - 2)]
+        busses = command & 0xf0
+        print("{:02x} busses = ".format(busses))
+       
+        print("{:02x} srcbus = ".format(command >> 6))
+       # print("{:02x} tgtbus = ".format(command >> 4))
+        srcBus = Bus((command >> 6))
+        tgtBus = Bus((command >> 4) & 0x3)
+        print("{:02x}".format(command).upper() + " command")
+        print("{:02x}".format(mode).upper() + " mode")
+        print(" ".join(["{:02x}".format(x) for x in payload]).upper() + ": receive payload")
+        print("{:02x}".format(checksum).upper() + " checksum")
+        print("{:02x}  srcBus = ".format(srcBus.value) + Bus(srcBus).name)
+        print("{:02x}  tgtBus = ".format(tgtBus.value) + Bus(tgtBus).name)
+
+        if command & 0x80:
+          command ^= 0x80
+          print("{:02x}".format(command).upper() + " = command enum :  " + Command(command).name)
+          commandEnum = Command(command)
+          if commandEnum == Command.response:
+            if ((command & 0x05) == 0x05):
+              if (mode == 0x01):
+                decodeHwinfo(payload)
+
 
 class PacketTx:
     buffer = bytearray([])
@@ -152,6 +199,8 @@ class PacketTx:
     mode = 0x00
     payload = bytearray([])
     checksum = 0x00
+    srcBus = Bus
+    tgtBus = Bus
 
     def buildPacket(self, request):
             length = len(request)
